@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Techy 3D Calculator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
+
+  body {
+    margin: 0;
+    height: 100vh;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Orbitron', monospace;
+    color: #00f0ff;
+    user-select: none;
+  }
+
+  .calculator {
+    background: #121827;
+    border: 2px solid #00f0ff;
+    border-radius: 16px;
+    box-shadow:
+      inset 0 0 10px #00f0ff,
+      0 8px 15px rgba(0, 240, 255, 0.3);
+    width: 320px;
+    padding: 30px 24px 40px 24px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .display {
+    background: #0f1620;
+    border-radius: 12px;
+    padding: 18px 20px;
+    font-size: 2.6rem;
+    letter-spacing: 2px;
+    color: #00f0ff;
+    text-align: right;
+    box-shadow:
+      inset 3px 3px 6px #061016,
+      inset -3px -3px 6px #18455b;
+    margin-bottom: 28px;
+    min-height: 60px;
+  }
+
+  .buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  button {
+    background: linear-gradient(145deg, #15212b, #0a121b);
+    border: 2px solid #00f0ff;
+    border-radius: 14px;
+    box-shadow:
+      3px 3px 8px #0a121b,
+      -3px -3px 8px #1b2a3f;
+    color: #00f0ff;
+    font-size: 1.3rem;
+    padding: 18px 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    user-select: none;
+  }
+
+  button.operator {
+    background: linear-gradient(145deg, #003c5a, #005f87);
+    border-color: #00c2ff;
+    box-shadow:
+      3px 3px 10px #004f7f,
+      -3px -3px 10px #007bb3;
+  }
+
+  button.zero {
+    grid-column: span 2;
+  }
+
+  button:hover {
+    color: #a0fff9;
+    border-color: #a0fff9;
+    box-shadow:
+      0 0 12px #a0fff9,
+      inset 0 0 8px #a0fff9;
+  }
+
+  button:active {
+    box-shadow:
+      inset 3px 3px 6px #007bb3,
+      inset -3px -3px 6px #004f7f;
+    transform: translateY(2px);
+  }
+</style>
+</head>
+<body>
+
+<div class="calculator">
+  <div id="display" class="display">0</div>
+  <div class="buttons">
+    <button class="operator" data-action="clear">C</button>
+    <button class="operator" data-action="backspace">⌫</button>
+    <button class="operator" data-action="percent">%</button>
+    <button class="operator" data-action="divide">÷</button>
+
+    <button data-number="7">7</button>
+    <button data-number="8">8</button>
+    <button data-number="9">9</button>
+    <button class="operator" data-action="multiply">×</button>
+
+    <button data-number="4">4</button>
+    <button data-number="5">5</button>
+    <button data-number="6">6</button>
+    <button class="operator" data-action="subtract">−</button>
+
+    <button data-number="1">1</button>
+    <button data-number="2">2</button>
+    <button data-number="3">3</button>
+    <button class="operator" data-action="add">+</button>
+
+    <button class="zero" data-number="0">0</button>
+    <button data-number=".">.</button>
+    <button class="operator" data-action="equals">=</button>
+  </div>
+</div>
+
+<script>
+  const display = document.getElementById('display');
+  const buttons = document.querySelectorAll('button');
+
+  let currentInput = '0';
+  let previousInput = null;
+  let operator = null;
+  let resultDisplayed = false;
+
+  function updateDisplay() {
+    display.textContent = currentInput;
+  }
+
+  function calculate() {
+    let prev = parseFloat(previousInput);
+    let curr = parseFloat(currentInput);
+    if (isNaN(prev) || isNaN(curr)) return;
+
+    let res;
+    switch(operator) {
+      case 'add':
+        res = prev + curr;
+        break;
+      case 'subtract':
+        res = prev - curr;
+        break;
+      case 'multiply':
+        res = prev * curr;
+        break;
+      case 'divide':
+        if (curr === 0) {
+          alert("Error: Division by zero");
+          return '0';
+        }
+        res = prev / curr;
+        break;
+      default:
+        return curr;
+    }
+    return res.toString();
+  }
+
+  buttons.forEach(button => {
+    button.addEventListener('click', () => {
+      const number = button.getAttribute('data-number');
+      const action = button.getAttribute('data-action');
+
+      if (number !== null) {
+        if (resultDisplayed) {
+          currentInput = number === '.' ? '0.' : number;
+          resultDisplayed = false;
+        } else {
+          if (number === '.') {
+            if (!currentInput.includes('.')) {
+              currentInput += '.';
+            }
+          } else {
+            currentInput = currentInput === '0' ? number : currentInput + number;
+          }
+        }
+        updateDisplay();
+        return;
+      }
+
+      if (action !== null) {
+        switch(action) {
+          case 'clear':
+            currentInput = '0';
+            previousInput = null;
+            operator = null;
+            updateDisplay();
+            break;
+          case 'backspace':
+            if (resultDisplayed) {
+              currentInput = '0';
+              resultDisplayed = false;
+            } else {
+              currentInput = currentInput.length > 1 ? currentInput.slice(0, -1) : '0';
+            }
+            updateDisplay();
+            break;
+          case 'percent':
+            currentInput = (parseFloat(currentInput) / 100).toString();
+            updateDisplay();
+            break;
+          case 'add':
+          case 'subtract':
+          case 'multiply':
+          case 'divide':
+            if (operator && previousInput !== null && !resultDisplayed) {
+              currentInput = calculate();
+              updateDisplay();
+            }
+            operator = action;
+            previousInput = currentInput;
+            currentInput = '0';
+            break;
+          case 'equals':
+            if (operator && previousInput !== null) {
+              currentInput = calculate();
+              updateDisplay();
+              operator = null;
+              previousInput = null;
+              resultDisplayed = true;
+            }
+            break;
+        }
+      }
+    });
+  });
+</script>
+
+</body>
+</html>

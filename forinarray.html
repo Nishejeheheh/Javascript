@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>JavaScript For...Of Loop</h2>
+<p>The for...of statement loops over the values of an array:</p>
+<p id="demo"></p>
+
+<script>
+  const numbers = [1, 12, 8, 14, 21]; 
+
+  let txt = "";
+  for (let num of numbers) {
+    txt += num + "<br>";
+  }
+
+  document.getElementById("demo").innerHTML = txt;
+</script>
+
+</body>
+</html>
