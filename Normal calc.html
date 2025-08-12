@@ -1,0 +1,163 @@
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Advanced Calculator</title>
+  <style>
+    :root{ --bg:#f6f7fb; --panel:#ffffff; --accent:#2563eb; --text:#0f172a }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:var(--bg);font-family:Inter,system-ui,Arial;color:var(--text);display:flex;align-items:center;justify-content:center;padding:20px}
+    .calc{width:360px;background:var(--panel);border-radius:12px;box-shadow:0 8px 24px rgba(16,24,40,0.08);overflow:hidden}
+    .display{padding:18px;background:#eef2ff;border-bottom:1px solid rgba(16,24,40,0.04);text-align:right}
+    .display .expr{font-size:14px;color:rgba(15,23,42,0.5);min-height:18px}
+    .display .out{font-size:28px;font-weight:700}
+    .keys{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:12px}
+    button{border:0;padding:14px;border-radius:8px;font-size:16px;cursor:pointer;background:#f8fafc}
+    button.op{background:#eef2ff;color:var(--accent);font-weight:700}
+    button.eq{grid-column:span 2;background:var(--accent);color:white}
+    button.wide{grid-column:span 2}
+    .footer{padding:12px;text-align:center;font-size:12px;color:rgba(15,23,42,0.5)}
+    .credit{padding:6px;text-align:center;font-size:11px;color:rgba(15,23,42,0.4)}
+  </style>
+</head>
+<body>
+  <div class="calc" role="application" aria-label="Advanced calculator">
+    <div class="display">
+      <div class="expr" id="expr">&nbsp;</div>
+      <div class="out" id="out">0</div>
+    </div>
+    <div class="keys" id="keys">
+      <button class="op" data-val="C" id="clear">C</button>
+      <button data-val="()" id="paren">( )</button>
+      <button data-val="%" class="op">%</button>
+      <button data-val="/" class="op">÷</button>
+
+      <button data-val="7">7</button>
+      <button data-val="8">8</button>
+      <button data-val="9">9</button>
+      <button data-val="*" class="op">×</button>
+
+      <button data-val="4">4</button>
+      <button data-val="5">5</button>
+      <button data-val="6">6</button>
+      <button data-val="-" class="op">−</button>
+
+      <button data-val="1">1</button>
+      <button data-val="2">2</button>
+      <button data-val="3">3</button>
+      <button data-val="+" class="op">+</button>
+
+      <button data-val="0" class="wide">0</button>
+      <button data-val=".">.</button>
+      <button class="eq" id="equals">=</button>
+
+      <button data-action="evenodd">Even/Odd</button>
+      <button data-action="reverse">Reverse</button>
+      <button data-action="factorial">n!</button>
+      <button data-action="prime">Prime?</button>
+    </div>
+    <div class="footer">Esc = clear, Backspace = delete, Enter = equals</div>
+    <div class="credit">Anish Naik, Made in PCCE</div>
+  </div>
+
+  <script>
+    const exprEl = document.getElementById('expr');
+    const outEl = document.getElementById('out');
+    const keys = document.getElementById('keys');
+
+    let expr = '';
+    let parenOpen = false;
+
+    function render(){
+      exprEl.textContent = expr || '\u00A0';
+      outEl.textContent = expr ? expr : '0';
+    }
+
+    function safeReplace(s){
+      return s.replace(/×/g,'*').replace(/÷/g,'/').replace(/[^0-9+\-*/().%]/g,'');
+    }
+
+    function factorial(n){
+      n = Number(n);
+      if(n < 0) return NaN;
+      if(n === 0) return 1;
+      let res = 1;
+      for(let i=1; i<=n; i++) res *= i;
+      return res;
+    }
+
+    function isPrime(n){
+      n = Number(n);
+      if(!Number.isInteger(n) || n < 2) return false;
+      for(let i=2; i<=Math.sqrt(n); i++){
+        if(n % i === 0) return false;
+      }
+      return true;
+    }
+
+    function evaluateExpression(){
+      if(!expr) return;
+      try{
+        const sanitized = safeReplace(expr);
+        let result = eval(sanitized);
+        if(typeof result === 'number'){
+          if(!Number.isFinite(result)) throw 'Error';
+          result = Number(result.toPrecision(12));
+        }
+        expr = String(result);
+        render();
+      }catch(e){
+        outEl.textContent = 'Error';
+        setTimeout(()=>{ expr=''; render(); },900);
+      }
+    }
+
+    function handleAction(action){
+      if(!expr) return;
+      let num = Number(expr);
+      switch(action){
+        case 'evenodd':
+          outEl.textContent = Number.isInteger(num) ? (num % 2 === 0 ? 'Even' : 'Odd') : 'Not integer';
+          break;
+        case 'reverse':
+          outEl.textContent = expr.split('').reverse().join('');
+          break;
+        case 'factorial':
+          outEl.textContent = factorial(num);
+          break;
+        case 'prime':
+          outEl.textContent = isPrime(num) ? 'Prime' : 'Not Prime';
+          break;
+      }
+    }
+
+    keys.addEventListener('click', (e)=>{
+      const btn = e.target.closest('button');
+      if(!btn) return;
+      const v = btn.dataset.val;
+      const action = btn.dataset.action;
+      if(action){ handleAction(action); return; }
+      if(v === 'C') { expr = ''; render(); return; }
+      if(btn.id === 'equals') { evaluateExpression(); return; }
+      if(btn.id === 'paren'){
+        expr += parenOpen ? ')' : '(';
+        parenOpen = !parenOpen;
+        render();
+        return;
+      }
+      expr += v;
+      render();
+    });
+
+    window.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter') { evaluateExpression(); e.preventDefault(); return; }
+      if(e.key === 'Escape') { expr=''; render(); return; }
+      if(e.key === 'Backspace') { expr = expr.slice(0,-1); render(); return; }
+      const allowed = '0123456789.+-*/()%';
+      if(allowed.includes(e.key)) { expr += e.key; render(); }
+    });
+
+    render();
+  </script>
+</body>
+</html>
