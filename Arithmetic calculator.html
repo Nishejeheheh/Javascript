@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Assignment Calculator By Anish</title>
+
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: cyan;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .calculator {
+      background: #fff;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      border: 1px solid #ddd;
+      max-width: 400px;
+      width: 100%;
+    }
+
+    .calculator h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: black;
+    }
+
+.calculator h3 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: bold;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+
+    button {
+      background-color: violet;
+      color: white;
+      font-weight: bold;
+      border: none;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+      cursor: pointer;
+    }
+
+    .result {
+      text-align: center;
+      font-size: 20px;
+      margin-top: 10px;
+      color: #333;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<div class="calculator">
+  <h2>Assignment Operator Calculator</h2>
+<h3>Made by Anish</h3>
+  
+  <label for="initial">Initial Value:</label>
+  <input type="number" id="initial" placeholder="Enter a number" />
+
+  <label for="operator">Operator:</label>
+  <select id="operator">
+    <option value="+=">+= (Add and assign)</option>
+    <option value="-=">-= (Subtract and assign)</option>
+    <option value="*=">*= (Multiply and assign)</option>
+    <option value="/=">/= (Divide and assign)</option>
+    <option value="%=">%= (Modulus and assign)</option>
+    <option value="**=">**= (Exponent and assign)</option>
+  </select>
+
+  <label for="value">Value to Assign:</label>
+  <input type="number" id="value" placeholder="Enter a value" />
+
+  <button onclick="calculate()">Calculate</button>
+
+  <div class="result" id="result">Result: --</div>
+</div>
+
+<script>
+  function calculate() {
+    let initial = parseFloat(document.getElementById('initial').value);
+    const value = parseFloat(document.getElementById('value').value);
+    const operator = document.getElementById('operator').value;
+
+    if (isNaN(initial) || isNaN(value)) {
+      document.getElementById('result').innerText = "Please enter valid numbers.";
+      return;
+    }
+
+    switch(operator) {
+      case '+=':
+        initial += value;
+        break;
+      case '-=':
+        initial -= value;
+        break;
+      case '*=':
+        initial *= value;
+        break;
+      case '/=':
+        if (value === 0) {
+          document.getElementById('result').innerText = "Cannot divide by zero!";
+          return;
+        }
+        initial /= value;
+        break;
+      case '%=':
+        initial %= value;
+        break;
+      case '**=':
+        initial **= value;
+        break;
+      default:
+        break;
+    }
+
+    document.getElementById('result').innerText = `Result: ${initial}`;
+  }
+</script>
+
+</body>
+</html>
